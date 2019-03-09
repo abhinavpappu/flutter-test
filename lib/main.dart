@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'random_words_list.dart';
 import 'assignment_notebook.dart';
+import 'calculator.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,8 +14,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white
       ),
-      // home: RandomWords()
-      home: AssignmentNotebook(),
+      // home: RandomWords(),
+      // home: AssignmentNotebook(),
+      home: Calculator(),
     );
   }
 }
