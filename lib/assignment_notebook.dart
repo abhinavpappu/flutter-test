@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AssignmentNotebook extends StatefulWidget {
   @override
@@ -7,8 +8,23 @@ class AssignmentNotebook extends StatefulWidget {
 
 class AssignmentNotebookState extends State<AssignmentNotebook> {
   final _tasks = <String>[];
-  final currentlyEditing = -1;
+  var _currentlyEditing = -1;
   final _biggerFont = const TextStyle(fontSize: 18.0);
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks();
+  }
+
+  _loadTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      final storedTasks = prefs.getStringList('tasks') ?? <String>[];
+      _tasks.addAll(storedTasks);
+    });
+  }
 
   @override
   Widget build(context) {
@@ -28,15 +44,18 @@ class AssignmentNotebookState extends State<AssignmentNotebook> {
 
         final index = i ~/ 2; // integer divide (5 / 2 === 2)
 
-        if (index == currentlyEditing) {
+        if (index == _currentlyEditing) {
           return TextField(
+            autofocus: true,
+            controller: TextEditingController(text: _tasks[index]),
             onSubmitted: (value) {
               setState(() {
                 _tasks[index] = value;
-                currentlyEditing = -1;
+                _currentlyEditing = -1;
+                save();
               });
             },
-          )
+          );
         }
 
         if (index < _tasks.length) {
@@ -45,11 +64,17 @@ class AssignmentNotebookState extends State<AssignmentNotebook> {
               _tasks[index],
               style: _biggerFont
             ),
+            onTap: () {
+              setState(() {
+                _currentlyEditing = index;
+              });
+            },
             trailing: IconButton(
               icon: Icon(Icons.delete),
               onPressed: () {
                 setState(() {
                   _tasks.removeAt(index);
+                  save();
                 });
               },
             ),
@@ -61,6 +86,7 @@ class AssignmentNotebookState extends State<AssignmentNotebook> {
             onSubmitted: (value) {
               setState(() {
                 _tasks.add(value);
+                save();
               });
             },
           );
@@ -69,5 +95,11 @@ class AssignmentNotebookState extends State<AssignmentNotebook> {
         return null;
       },
     );
+  }
+
+  save() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.setStringList('tasks', _tasks);
   }
 }
