@@ -81,7 +81,7 @@ class AssignmentNotebookState extends State<AssignmentNotebook> {
           );
         }
 
-        else if (index ==_tasks.length) {
+        else if (index == _tasks.length) {
           return TextField(
             onSubmitted: (value) {
               setState(() {
